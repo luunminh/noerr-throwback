@@ -5,10 +5,12 @@ import { shuffle } from './lib/random';
 import { Hero } from './sections/Hero';
 import { MusicSticker } from './sections/MusicSticker';
 import { Splash } from './sections/Splash';
+import { TileWall } from './wall/TileWall';
 
 export function App() {
   const order = useMemo(() => shuffle(memories), []); // fresh order every visit
   const [entered, setEntered] = useState(false);
+  const [lightbox, setLightbox] = useState<number | null>(null);
 
   if (order.length === 0) return <p className="label empty">NO MEMORIES YET · RUN npm run build:images</p>;
 
@@ -18,6 +20,8 @@ export function App() {
       {!entered && <Splash onEnter={() => setEntered(true)} />}
       <main inert={!entered}>
         <Hero order={order} />
+        <hr className="divider" />
+        <TileWall order={order} paused={!entered || lightbox !== null} onOpen={m => setLightbox(order.indexOf(m))} />
         <hr className="divider" />
       </main>
       {entered && <MusicSticker />}
