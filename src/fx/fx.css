@@ -1,0 +1,8 @@
+.rain { position: fixed; inset: 0; z-index: 90; overflow: hidden; pointer-events: none; }
+.rain__drop {
+  position: absolute; top: -140px; aspect-ratio: 1; object-fit: cover;
+  border: 3px solid var(--cream); border-radius: 50%; animation: fall 1.8s ease-in forwards;
+}
+@keyframes fall { to { transform: translateY(calc(100vh + 180px)) rotate(var(--spin)); } }
+.trail { position: fixed; inset: 0; z-index: 95; pointer-events: none; }
+.trail__dot { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; opacity: 0; }

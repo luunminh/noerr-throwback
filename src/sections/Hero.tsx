@@ -17,8 +17,9 @@ const SPOTS: { l: number; t: number; w: number; ratio: number; rot: number; shad
   { l: 36, t: 40, w: 28, ratio: 1.1, rot: 8, shadow: 'pink' },
 ];
 
-export function Hero({ order }: { order: readonly Memory[] }) {
+export function Hero({ order, onRain }: { order: readonly Memory[]; onRain(): void }) {
   const cluster = useRef<HTMLDivElement>(null);
+  const taps = useRef<number[]>([]);
   const reduced = useReducedMotion();
 
   // A random sticker peels a little on scroll, at most every 2 s.
@@ -39,11 +40,21 @@ export function Hero({ order }: { order: readonly Memory[] }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, [reduced]);
 
+  // Easter egg: 5 taps on the title within 3 s.
+  const tapTitle = () => {
+    const now = Date.now();
+    taps.current = [...taps.current.filter(t => now - t < 3000), now];
+    if (taps.current.length >= 5) {
+      taps.current = [];
+      onRain();
+    }
+  };
+
   return (
     <header className="hero" id="top">
       <TopBar />
       <div className="hero__words">
-        <Lettering text="NOERR" className="hero__title" />
+        <Lettering text="NOERR" className="hero__title" onClick={tapTitle} />
         <span className="pill disp">THROWBACK</span>
         <p className="label hero__sub">{content.subtitle}</p>
       </div>
