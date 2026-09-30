@@ -6,3 +6,7 @@
 @keyframes fall { to { transform: translateY(calc(100vh + 180px)) rotate(var(--spin)); } }
 .trail { position: fixed; inset: 0; z-index: 95; pointer-events: none; }
 .trail__dot { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; opacity: 0; }
+/* Black is the fallback: if the video is missing, blocked or still loading, only ink shows. */
+.bgv { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--ink); pointer-events: none; }
+.bgv__video { width: 100%; height: 100%; object-fit: cover; }
+.bgv::after { content: ''; position: absolute; inset: 0; background: rgb(10 10 10 / 0.72); }

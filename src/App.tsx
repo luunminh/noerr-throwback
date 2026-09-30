@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { BackgroundVideo } from './fx/BackgroundVideo';
 import { CursorTrail } from './fx/CursorTrail';
 import { FaceRain, useNoerrKeys } from './fx/FaceRain';
 import { memories } from './lib/memory';
@@ -25,6 +26,7 @@ export function App() {
   return (
     <>
       <DuotoneDefs />
+      <BackgroundVideo />
       {!entered && <Splash onEnter={() => setEntered(true)} />}
       <main inert={!entered}>
         <Hero order={order} onRain={triggerRain} />
