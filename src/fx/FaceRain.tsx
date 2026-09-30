@@ -53,3 +53,39 @@ export function FaceRain({ order, onDone }: { order: readonly Memory[]; onDone()
     </div>
   );
 }
+
+const FACES = ['quynh', 'peter', 'hoang', 'khoa', 'trang', 'minh', 'ho', 'bao'];
+
+/** Ambient: team faces drift down like slow snow, forever. Negative delays → sky already populated on load. */
+export function FaceSnow() {
+  const reduced = useReducedMotion();
+  const flakes = useMemo(
+    () =>
+      Array.from({ length: 10 }, (_, i) => {
+        const dur = 16 + Math.random() * 12;
+        return {
+          face: FACES[i % FACES.length],
+          x: Math.random() * 100,
+          dur,
+          delay: -Math.random() * dur,
+          sway: 2 + Math.random() * 3,
+          size: 28 + Math.random() * 22,
+        };
+      }),
+    [],
+  );
+  if (reduced) return null;
+  return (
+    <div className="snow" aria-hidden="true">
+      {flakes.map((f, i) => (
+        <div
+          key={i}
+          className="snow__flake"
+          style={{ left: `${f.x}%`, width: f.size, animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }}
+        >
+          <img src={`/faces/${f.face}.webp`} alt="" style={{ animationDuration: `${f.sway}s` }} />
+        </div>
+      ))}
+    </div>
+  );
+}

@@ -10,3 +10,11 @@
 .bgv { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--ink); pointer-events: none; }
 .bgv__video { width: 100%; height: 100%; object-fit: cover; }
 .bgv::after { content: ''; position: absolute; inset: 0; background: rgb(10 10 10 / 0.72); }
+.snow { position: fixed; inset: 0; z-index: 80; overflow: hidden; pointer-events: none; }
+.snow__flake { position: absolute; top: -60px; opacity: 0.55; animation: snowfall linear infinite; }
+.snow__flake img {
+  display: block; width: 100%; aspect-ratio: 1; border-radius: 50%;
+  border: 2px solid var(--cream); animation: sway ease-in-out infinite alternate;
+}
+@keyframes snowfall { to { transform: translateY(calc(100vh + 120px)); } }
+@keyframes sway { from { transform: translateX(-18px) rotate(-12deg); } to { transform: translateX(18px) rotate(12deg); } }

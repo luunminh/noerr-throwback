@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { BackgroundVideo } from './fx/BackgroundVideo';
 import { CursorTrail } from './fx/CursorTrail';
-import { FaceRain, useNoerrKeys } from './fx/FaceRain';
+import { FaceRain, FaceSnow, useNoerrKeys } from './fx/FaceRain';
 import { memories } from './lib/memory';
 import { DuotoneDefs } from './lib/Picture';
 import { shuffle } from './lib/random';
@@ -39,6 +39,7 @@ export function App() {
       {entered && <MusicSticker />}
       <Lightbox order={order} index={lightbox} onIndex={setLightbox} onClose={() => setLightbox(null)} />
       {rain > 0 && <FaceRain key={rain} order={order} onDone={endRain} />}
+      <FaceSnow />
       <CursorTrail />
     </>
   );
