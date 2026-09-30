@@ -1,13 +1,25 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { flushSync } from 'react-dom';
 import { Lettering } from '../fx/Lettering';
 import { useMediaQuery, useReducedMotion } from '../lib/media';
 import type { Memory } from '../lib/memory';
+import { shuffle } from '../lib/random';
 import { playFlip, snapshot } from './flip';
-import { assign, GRID, pack } from './layout';
-import { syncStates, type States } from './pairs';
+import { assign, GRID, pack, type TileSpec } from './layout';
+import {
+  clearHidden, hiddenIndex, loadHidden, onScreenIds, patchSlot, revealHidden, rollDuo, syncStates, turnPair,
+  type SlotKey, type States, type TileState,
+} from './pairs';
 import { createQueue } from './queue';
 import { Tile } from './Tile';
+import { useScheduler } from './useScheduler';
 import './wall.css';
+
+const TICK_MS = 1200;
+const TURN_MS = 700;
+const PEEK_MS = 550;
+const PEEK_HOLD_MS = 2400;
+const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
 interface Props {
   order: readonly Memory[];
@@ -28,6 +40,10 @@ export function TileWall({ order, paused, onOpen }: Props) {
   const before = useRef<Map<string, DOMRect> | null>(null);
   const statesRef = useRef(states);
   statesRef.current = states;
+  const layoutRef = useRef(layout);
+  layoutRef.current = layout;
+  const visibleIds = useRef(new Set<number>());
+  const busy = useRef(new Set<number>());
 
   const relayout = useCallback(
     (animate: boolean) => {
@@ -53,7 +69,84 @@ export function TileWall({ order, paused, onOpen }: Props) {
     before.current = null;
   }, [layout]);
 
-  void paused; // used by the scheduler in Task 10
+  // T9: only on-screen tiles animate.
+  useEffect(() => {
+    const grid = root.current;
+    if (!grid) return;
+    visibleIds.current.clear();
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        const id = Number((e.target as HTMLElement).dataset.tile);
+        if (e.isIntersecting) visibleIds.current.add(id);
+        else visibleIds.current.delete(id);
+      }
+    });
+    grid.querySelectorAll('[data-tile]').forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, [layout]);
+
+  const patch = (id: number, fn: (s: TileState) => TileState) =>
+    setStates(all => (all[id] ? { ...all, [id]: fn(all[id]) } : all));
+
+  /** Load next photo into the hidden face, wait for decode (T4), turn, then drop the old face. */
+  const turn = async (id: number, slot: SlotKey) => {
+    const s = statesRef.current[id];
+    const pair = s && (slot === 'main' ? s.main : s.minis[slot]);
+    if (!pair) return;
+    const hidden = hiddenIndex(pair);
+    const m = queue.next(onScreenIds(statesRef.current));
+    flushSync(() => patch(id, x => patchSlot(x, slot, p => loadHidden(p, m, rollDuo(Math.random)))));
+    const img = root.current?.querySelector<HTMLImageElement>(
+      `[data-tile="${id}"] [data-pair="${slot}"] [data-face="${hidden}"] img`,
+    );
+    await img?.decode().catch(() => {});
+    patch(id, x => patchSlot(x, slot, revealHidden));
+    await wait(TURN_MS);
+    patch(id, x => patchSlot(x, slot, clearHidden));
+  };
+
+  const peek = async (id: number) => {
+    patch(id, s => ({ ...s, peeking: true }));
+    await wait(PEEK_MS + PEEK_HOLD_MS);
+    patch(id, s => ({ ...s, peeking: false }));
+    await wait(PEEK_MS);
+  };
+
+  const act = async (t: TileSpec) => {
+    busy.current.add(t.id);
+    try {
+      const s = statesRef.current[t.id];
+      if (!s) return;
+      if (t.kind === 'flip') await turn(t.id, 'main');
+      else if (t.kind === 'peek') await (Math.random() < 0.5 ? peek(t.id) : turn(t.id, 'main'));
+      else if (t.kind === 'mosaic') {
+        patch(t.id, x => ({ ...x, miniTurn: x.miniTurn + 1 }));
+        await turn(t.id, s.miniTurn % 4); // minis change one at a time, in order
+      } else if (t.kind === 'colour') {
+        if (s.main.back) {
+          patch(t.id, x => patchSlot(x, 'main', turnPair)); // back to the word
+          await wait(TURN_MS);
+          patch(t.id, x => patchSlot(x, 'main', clearHidden));
+        } else if (Math.random() < 1 / 3) {
+          await turn(t.id, 'main'); // less often than photo tiles
+        }
+      }
+    } finally {
+      busy.current.delete(t.id);
+    }
+  };
+
+  // T2: one global tick picks 1–2 visible, idle tiles.
+  useScheduler(
+    () => {
+      const candidates = layoutRef.current.filter(
+        t => visibleIds.current.has(t.id) && !busy.current.has(t.id) && t.kind !== 'counter' && t.kind !== 'music',
+      );
+      for (const t of shuffle(candidates).slice(0, Math.random() < 0.5 ? 1 : 2)) void act(t);
+    },
+    TICK_MS,
+    !paused,
+  );
 
   return (
     <section className="wall" id="wall" aria-labelledby="wall-title">
