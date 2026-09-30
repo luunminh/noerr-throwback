@@ -1,5 +1,24 @@
+import { useMemo, useState } from 'react';
 import { memories } from './lib/memory';
+import { DuotoneDefs } from './lib/Picture';
+import { shuffle } from './lib/random';
+import { MusicSticker } from './sections/MusicSticker';
+import { Splash } from './sections/Splash';
 
 export function App() {
-  return <p className="label empty">{memories.length} MEMORIES</p>;
+  const order = useMemo(() => shuffle(memories), []); // fresh order every visit
+  const [entered, setEntered] = useState(false);
+
+  if (order.length === 0) return <p className="label empty">NO MEMORIES YET · RUN npm run build:images</p>;
+
+  return (
+    <>
+      <DuotoneDefs />
+      {!entered && <Splash onEnter={() => setEntered(true)} />}
+      <main inert={!entered}>
+        <p className="label empty">{order.length} MEMORIES</p>
+      </main>
+      {entered && <MusicSticker />}
+    </>
+  );
 }
