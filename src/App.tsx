@@ -3,6 +3,7 @@ import { memories } from './lib/memory';
 import { DuotoneDefs } from './lib/Picture';
 import { shuffle } from './lib/random';
 import { Hero } from './sections/Hero';
+import { Lightbox } from './sections/Lightbox';
 import { MusicSticker } from './sections/MusicSticker';
 import { Splash } from './sections/Splash';
 import { TileWall } from './wall/TileWall';
@@ -25,6 +26,7 @@ export function App() {
         <hr className="divider" />
       </main>
       {entered && <MusicSticker />}
+      <Lightbox order={order} index={lightbox} onIndex={setLightbox} onClose={() => setLightbox(null)} />
     </>
   );
 }
