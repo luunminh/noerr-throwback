@@ -104,7 +104,8 @@ button { font: inherit; color: inherit; }
   *, *::before, *::after { animation: none !important; }
 }
 
-.lettering { display: flex; flex-wrap: wrap; letter-spacing: -2px; }
+.lettering { display: flex; flex-wrap: nowrap; white-space: nowrap; letter-spacing: -2px; }
 .lettering__char { display: inline-block; }
 .lettering__gap { width: 0.3em; }
 .disc__spin { transform-box: fill-box; transform-origin: center; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

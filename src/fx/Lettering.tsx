@@ -12,7 +12,8 @@ interface Props extends HTMLAttributes<HTMLElement> {
 
 export function Lettering({ text, as: Tag = 'h1', className = '', ...rest }: Props) {
   return (
-    <Tag className={`disp letter lettering ${className}`} aria-label={text} {...rest}>
+    <Tag className={`disp letter lettering ${className}`} {...rest}>
+      <span className="sr-only">{text}</span>
       {graphemes(text).map((ch, i) =>
         ch === ' ' ? (
           <span key={i} className="lettering__gap" aria-hidden="true" />
