@@ -1,0 +1,18 @@
+.hero {
+  position: relative; max-width: var(--maxw); margin: 0 auto;
+  padding: 88px var(--gutter) 32px; display: grid; gap: 28px;
+}
+.hero__words { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.hero__title {
+  font-size: clamp(88px, 24vw, 300px); user-select: none; flex-wrap: nowrap; white-space: nowrap;
+  transform: scale(calc(1 + var(--pulse) * 0.06)); transform-origin: left center;
+}
+.hero__cluster { position: relative; z-index: 1; width: 100%; aspect-ratio: 1 / 1.05; }
+.hero__star { position: absolute; right: 0; top: -6%; z-index: 10; }
+.hero__flower { position: absolute; left: 40%; bottom: -4%; z-index: 10; }
+.hero__scroll { justify-self: start; text-decoration: none; }
+@media (min-width: 768px) {
+  .hero { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: center; min-height: 100vh; }
+  .hero__scroll { grid-column: 1 / -1; }
+  .hero__title { font-size: min(300px, 17vw); }
+}

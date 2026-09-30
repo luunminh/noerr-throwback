@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { memories } from './lib/memory';
 import { DuotoneDefs } from './lib/Picture';
 import { shuffle } from './lib/random';
+import { Hero } from './sections/Hero';
 import { MusicSticker } from './sections/MusicSticker';
 import { Splash } from './sections/Splash';
 
@@ -16,7 +17,8 @@ export function App() {
       <DuotoneDefs />
       {!entered && <Splash onEnter={() => setEntered(true)} />}
       <main inert={!entered}>
-        <p className="label empty">{order.length} MEMORIES</p>
+        <Hero order={order} />
+        <hr className="divider" />
       </main>
       {entered && <MusicSticker />}
     </>
