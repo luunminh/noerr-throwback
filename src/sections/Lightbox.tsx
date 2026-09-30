@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { Memory } from '../lib/memory';
+import { numberOf, type Memory } from '../lib/memory';
 import { Picture } from '../lib/Picture';
 import './lightbox.css';
 
@@ -49,7 +49,7 @@ export function Lightbox({ order, index, onIndex, onClose }: Props) {
         <>
           <header className="lightbox__top">
             <span className="label label--cream">
-              <span className="disp lightbox__num">{String(index + 1).padStart(2, '0')}</span> / {n}
+              <span className="disp lightbox__num">{numberOf(m)}</span> / {n}
             </span>
             <span className="label">PHOTO · ORIGINAL</span>
             <button type="button" className="btn-ghost lightbox__close" onClick={onClose} aria-label="Close">✕</button>

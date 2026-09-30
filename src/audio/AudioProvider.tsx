@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useReducedMotion } from '../lib/media';
+import { canUseWebAudio, stateAfterPlayError } from './policy';
 
 export type AudioState = 'idle' | 'playing' | 'paused' | 'blocked';
 interface AudioApi {
@@ -32,6 +33,7 @@ export function AudioProvider({ src, children }: { src: string; children: ReactN
   // iOS ignores audio.volume, so volume/fade/mute go through a GainNode.
   const ensureGraph = (): Graph | null => {
     if (graph.current || !el.current) return graph.current;
+    if (!canUseWebAudio(navigator, navigator.userAgent)) return null; // iOS 16: silent switch would mute Web Audio
     try {
       // iOS 17+: let Web Audio play even with the ringer switch on silent.
       const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
@@ -63,7 +65,10 @@ export function AudioProvider({ src, children }: { src: string; children: ReactN
     const audio = el.current;
     if (!audio) return;
     const g = ensureGraph();
-    if (!g) audio.muted = mutedRef.current;
+    if (!g) {
+      audio.muted = mutedRef.current;
+      audio.volume = VOLUME; // ignored on iOS, honoured elsewhere
+    }
     // resume() and play() must both start synchronously inside the tap handler.
     const resumed = g ? g.ctx.resume() : Promise.resolve();
     const played = audio.play();
@@ -72,7 +77,10 @@ export function AudioProvider({ src, children }: { src: string; children: ReactN
         setState('playing');
         rampTo(mutedRef.current ? 0 : VOLUME, fadeSecs);
       },
-      () => setState('blocked'),
+      err => {
+        const next = stateAfterPlayError(err);
+        if (next) setState(next);
+      },
     );
   }, []);
 
@@ -145,7 +153,20 @@ export function AudioProvider({ src, children }: { src: string; children: ReactN
 
   return (
     <Ctx.Provider value={{ state, muted, start, toggle, toggleMute }}>
-      <audio ref={el} src={src} loop preload="auto" onError={() => setState('blocked')} />
+      <audio
+        ref={el}
+        src={src}
+        loop
+        preload="auto"
+        onError={() => setState('blocked')}
+        onPlay={() => {
+          setState('playing');
+          rampTo(mutedRef.current ? 0 : VOLUME, 0.3); // resumed from outside (lock screen): gain may be 0
+        }}
+        onPause={() => {
+          if (!document.hidden) setState('paused'); // our own hide-pause keeps 'playing' for resume
+        }}
+      />
       {children}
     </Ctx.Provider>
   );
