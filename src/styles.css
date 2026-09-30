@@ -103,3 +103,8 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; }
 }
+
+.lettering { display: flex; flex-wrap: wrap; letter-spacing: -2px; }
+.lettering__char { display: inline-block; }
+.lettering__gap { width: 0.3em; }
+.disc__spin { transform-box: fill-box; transform-origin: center; }

@@ -1,0 +1,14 @@
+.stk { position: absolute; transform: rotate(var(--rot)); }
+.stk-in {
+  position: relative; width: 100%; height: 100%; overflow: hidden; container-type: size;
+  border: 6px solid var(--cream); border-radius: 18px; background: var(--tile-bg);
+  box-shadow: 10px 10px 0 var(--shadow);
+}
+.stk:hover .stk-in, .stk:active .stk-in { animation: wobble 0.6s ease-in-out forwards; }
+.stk.is-peel .stk-in { animation: peel 0.6s ease-in-out; }
+.stk__img, .stk__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.stk__label { position: absolute; left: 10px; bottom: 8px; display: flex; flex-direction: column; line-height: 1; }
+.stk__num { font-size: 30cqmin; color: var(--cream); text-shadow: 0 2px 0 rgb(0 0 0 / 0.35); }
+@keyframes peel {
+  50% { transform: translateY(-6px) rotate(-3deg); clip-path: polygon(0 0, 100% 0, 100% 80%, 80% 100%, 0 100%); }
+}
