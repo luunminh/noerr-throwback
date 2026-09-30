@@ -5,6 +5,7 @@ import { shuffle } from './lib/random';
 import { Hero } from './sections/Hero';
 import { Lightbox } from './sections/Lightbox';
 import { MusicSticker } from './sections/MusicSticker';
+import { Footer, Outro } from './sections/Outro';
 import { Splash } from './sections/Splash';
 import { TileWall } from './wall/TileWall';
 
@@ -24,6 +25,8 @@ export function App() {
         <hr className="divider" />
         <TileWall order={order} paused={!entered || lightbox !== null} onOpen={m => setLightbox(order.indexOf(m))} />
         <hr className="divider" />
+        <Outro />
+        <Footer />
       </main>
       {entered && <MusicSticker />}
       <Lightbox order={order} index={lightbox} onIndex={setLightbox} onClose={() => setLightbox(null)} />
