@@ -25,13 +25,15 @@ beforeAll(async () => {
     .toFile(path.join(src, 'blue.png'));
   await fs.copyFile(path.join(src, 'blue.png'), path.join(src, 'zz-blue-again.png'));
   await fs.writeFile(path.join(src, 'notes.txt'), 'ignore me');
+  await fs.writeFile(path.join(src, 'broken.HEIC'), 'not really a heic');
 });
 
 describe('buildImages', () => {
-  it('works without captions.json, handles uppercase ext, drops byte-identical duplicates', async () => {
+  it('works without captions.json, handles uppercase ext, drops byte-identical duplicates, skips an unreadable HEIC', async () => {
     const out = await run();
     expect(out.map(m => m.file).sort()).toEqual(['blue.png', 'rotated.JPG']);
-    expect(await fs.readFile(jsonPath, 'utf8').then(JSON.parse)).toEqual(out);
+    // original filenames stay on the laptop: the shipped JSON has no `file`
+    expect(await fs.readFile(jsonPath, 'utf8').then(JSON.parse)).toEqual(out.map(({ file, ...rest }) => rest));
     expect([...out].map(m => m.id)).toEqual([...out].map(m => m.id).sort());
   });
 

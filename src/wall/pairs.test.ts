@@ -8,7 +8,7 @@ import {
 } from './pairs';
 import { createQueue } from './queue';
 
-const mem = (i: number): Memory => ({ id: `m${i}`, file: `${i}.jpg`, width: 1, height: 1, blurDataUrl: '' });
+const mem = (i: number): Memory => ({ id: `m${i}`, width: 1, height: 1, blurDataUrl: '' });
 const pool = Array.from({ length: 36 }, (_, i) => mem(i));
 
 function allFaceIds(states: States) {
@@ -77,7 +77,7 @@ describe('syncStates', () => {
     const ids = allFaceIds(second);
     expect(new Set(ids).size).toBe(ids.length);
     expect(visible(second[0].main)?.id).toBe(visible(first[0].main)?.id); // large tile keeps its photo
-    expect(second[0].main.faces.filter(Boolean)).toHaveLength(1); // mid-flip face dropped
+    expect(second[0].main.faces.filter(Boolean)).toHaveLength(2); // in-flight face kept: the pending turn finishes, no blank frame
     for (const t of b) if (t.kind === 'flip' || t.kind === 'peek') expect(visible(second[t.id].main)).not.toBeNull();
   });
 });

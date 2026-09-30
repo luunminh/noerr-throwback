@@ -50,8 +50,9 @@ export function syncStates(layout: readonly TileSpec[], prev: States, queue: Que
   for (const t of layout) {
     const old = prev[t.id];
     out[t.id] = {
-      main: old && showsPhoto(t) && visible(old.main) ? clearHidden(old.main) : emptyPair(),
-      minis: t.kind === 'mosaic' && old ? old.minis.map(clearHidden) : [],
+      // Keep both faces: an in-flight turn finishes and clears the old face itself.
+      main: old && showsPhoto(t) && visible(old.main) ? old.main : emptyPair(),
+      minis: t.kind === 'mosaic' && old ? old.minis : [],
       miniTurn: old?.miniTurn ?? 0,
       peeking: false,
     };

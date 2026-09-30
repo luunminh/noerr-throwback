@@ -26,9 +26,11 @@ async function readCaptions(file) {
 async function heicToJpeg(file) {
   if (process.platform !== 'darwin') return null;
   const tmp = path.join(os.tmpdir(), `noerr-${process.pid}-${Date.now()}.jpg`);
-  execFileSync('sips', ['-s', 'format', 'jpeg', file, '--out', tmp], { stdio: 'ignore' });
   try {
+    execFileSync('sips', ['-s', 'format', 'jpeg', file, '--out', tmp], { stdio: 'ignore' });
     return await fs.readFile(tmp);
+  } catch {
+    return null; // unreadable HEIC: skip it rather than fail the whole build
   } finally {
     await fs.rm(tmp, { force: true });
   }
@@ -51,7 +53,7 @@ export async function buildImages({ src, outDir, jsonPath, captionsPath, log = c
     }
     const input = /\.heic$/i.test(name) ? await heicToJpeg(full) : raw;
     if (!input) {
-      log(`skip HEIC (needs macOS sips): ${name}`);
+      log(`skip HEIC (needs macOS sips, or file unreadable): ${name}`);
       continue;
     }
     seen.set(id, name);
@@ -92,7 +94,8 @@ export async function buildImages({ src, outDir, jsonPath, captionsPath, log = c
   }
 
   out.sort((a, b) => a.id.localeCompare(b.id));
-  await fs.writeFile(jsonPath, `${JSON.stringify(out, null, 2)}\n`);
+  // `file` is only for captions/logs here; original filenames never ship to visitors.
+  await fs.writeFile(jsonPath, `${JSON.stringify(out.map(({ file, ...rest }) => rest), null, 2)}\n`);
   return out;
 }
 

@@ -56,7 +56,7 @@ export function Hero({ order, onRain }: { order: readonly Memory[]; onRain(): vo
       <div className="hero__words">
         <Lettering text="NOERR" className="hero__title" onClick={tapTitle} />
         <span className="pill disp">THROWBACK</span>
-        <p className="label hero__sub">{content.subtitle}</p>
+        <p className="label hero__sub" lang="vi">{content.subtitle}</p>
       </div>
       <div className="hero__cluster" ref={cluster}>
         {order.slice(0, SPOTS.length).map((m, i) => (

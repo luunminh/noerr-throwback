@@ -55,7 +55,7 @@ export function Lightbox({ order, index, onIndex, onClose }: Props) {
             <button type="button" className="btn-ghost lightbox__close" onClick={onClose} aria-label="Close">✕</button>
           </header>
           <Picture m={m} sizes="100vw" className="lightbox__img" loading="eager" />
-          {m.caption && <p className="lightbox__cap">{m.caption}</p>}
+          {m.caption && <p className="lightbox__cap" lang="vi">{m.caption}</p>}
           <footer className="lightbox__nav">
             <button type="button" className="btn-ghost" onClick={() => go(-1)}>← PREV</button>
             <span className="label label--muted">SWIPE · ARROWS · ESC</span>

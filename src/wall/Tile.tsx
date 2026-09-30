@@ -45,10 +45,10 @@ export function Tile({ spec, state, total, onOpen, onShuffle }: Props) {
   const click = (e: MouseEvent<HTMLButtonElement>) => {
     if (spec.kind === 'counter') return onShuffle();
     if (spec.kind === 'music') return audio.toggle();
+    // Pointer: the mini under the finger. Keyboard (no data-mini target): the most recently changed mini.
+    const mini = (e.target as HTMLElement).closest<HTMLElement>('[data-mini]')?.dataset.mini;
     const pair =
-      spec.kind === 'mosaic'
-        ? state.minis[Number((e.target as HTMLElement).closest<HTMLElement>('[data-mini]')?.dataset.mini ?? 0)]
-        : state.main;
+      spec.kind === 'mosaic' ? state.minis[mini !== undefined ? Number(mini) : (state.miniTurn + 3) % 4] : state.main;
     const m = pair && visible(pair);
     if (m) onOpen(m);
   };
@@ -124,7 +124,7 @@ function Body({ spec, state, total, playing }: { spec: TileSpec; state: TileStat
           {spec.kind === 'peek' && (
             <span className="peek__panel">
               <span className="label">NO. {m ? numberOf(m) : ''}</span>
-              {m?.caption && <span className="peek__cap">{m.caption}</span>}
+              {m?.caption && <span className="peek__cap" lang="vi">{m.caption}</span>}
             </span>
           )}
           <span className={`peek__photo${state.peeking ? ' is-up' : ''}`}>

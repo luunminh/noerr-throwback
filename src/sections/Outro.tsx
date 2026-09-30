@@ -6,9 +6,9 @@ export function Outro() {
   return (
     <section className="outro" aria-labelledby="outro-title">
       <p className="label">SIDE B · CREDITS</p>
-      <Lettering as="h2" id="outro-title" text="CẢM ƠN!" className="outro__title" />
-      <p className="outro__thanks">{content.thanks}</p>
-      <ol className="tracklist">
+      <Lettering as="h2" id="outro-title" text="CẢM ƠN!" className="outro__title" lang="vi" />
+      <p className="outro__thanks" lang="vi">{content.thanks}</p>
+      <ol className="tracklist" lang="vi">
         {content.team.map((p, i) => (
           <li key={i}>
             <span className="tracklist__n">{String(i + 1).padStart(2, '0')}</span>

@@ -17,6 +17,7 @@ import './wall.css';
 
 const TICK_MS = 1200;
 const TURN_MS = 700;
+const FADE_MS = 900; // reduced-motion crossfade (wall.css .face transition)
 const PEEK_MS = 550;
 const PEEK_HOLD_MS = 2400;
 const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -58,7 +59,7 @@ export function TileWall({ order, paused, onOpen }: Props) {
 
   // Re-pack when the breakpoint flips (phone rotation, window resize).
   const packedCols = useRef(cols);
-  useEffect(() => {
+  useLayoutEffect(() => { // before paint: no frame of the old layout on the new grid
     if (packedCols.current === cols) return;
     packedCols.current = cols;
     relayout(false);
@@ -99,9 +100,13 @@ export function TileWall({ order, paused, onOpen }: Props) {
     const img = root.current?.querySelector<HTMLImageElement>(
       `[data-tile="${id}"] [data-pair="${slot}"] [data-face="${hidden}"] img`,
     );
-    await img?.decode().catch(() => {});
+    const ok = img ? await img.decode().then(() => true, () => false) : false;
+    if (!ok) {
+      patch(id, x => patchSlot(x, slot, clearHidden)); // broken image: never flip onto it
+      return;
+    }
     patch(id, x => patchSlot(x, slot, revealHidden));
-    await wait(TURN_MS);
+    await wait(reduced ? FADE_MS : TURN_MS);
     patch(id, x => patchSlot(x, slot, clearHidden));
   };
 
@@ -125,7 +130,7 @@ export function TileWall({ order, paused, onOpen }: Props) {
       } else if (t.kind === 'colour') {
         if (s.main.back) {
           patch(t.id, x => patchSlot(x, 'main', turnPair)); // back to the word
-          await wait(TURN_MS);
+          await wait(reduced ? FADE_MS : TURN_MS);
           patch(t.id, x => patchSlot(x, 'main', clearHidden));
         } else if (Math.random() < 1 / 3) {
           await turn(t.id, 'main'); // less often than photo tiles

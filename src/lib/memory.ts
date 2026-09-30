@@ -2,7 +2,6 @@ import data from '../memories.json';
 
 export interface Memory {
   id: string;
-  file: string;
   width: number;
   height: number;
   caption?: string;

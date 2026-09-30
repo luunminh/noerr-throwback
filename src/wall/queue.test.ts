@@ -3,7 +3,7 @@ import type { Memory } from '../lib/memory';
 import { mulberry32 } from '../lib/random';
 import { createQueue } from './queue';
 
-const mem = (i: number): Memory => ({ id: `m${i}`, file: `${i}.jpg`, width: 1, height: 1, blurDataUrl: '' });
+const mem = (i: number): Memory => ({ id: `m${i}`, width: 1, height: 1, blurDataUrl: '' });
 const pool = (n: number) => Array.from({ length: n }, (_, i) => mem(i));
 const none = new Set<string>();
 
